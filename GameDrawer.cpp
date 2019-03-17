@@ -11,6 +11,7 @@ GameDrawer::GameDrawer()
 {
 }
 
+//-----------------------------------------------------------------------
 void GameDrawer::draw(Arduboy& arduboy, GameState& gameState)
 {
   // we clear our screen to black
@@ -18,7 +19,7 @@ void GameDrawer::draw(Arduboy& arduboy, GameState& gameState)
 
   drawSpeed(arduboy, gameState);
 
-  drawCar(arduboy, gameState);
+  drawMyCar(arduboy, gameState);
 
   drawTrack(arduboy, gameState);
 
@@ -28,6 +29,7 @@ void GameDrawer::draw(Arduboy& arduboy, GameState& gameState)
   arduboy.display();
 }
 
+//-----------------------------------------------------------------------
 void GameDrawer::drawSpeed(Arduboy& arduboy, GameState& gameState)
 {
   arduboy.setCursor(2, 2);
@@ -36,68 +38,67 @@ void GameDrawer::drawSpeed(Arduboy& arduboy, GameState& gameState)
   arduboy.print(String(gameState.m_carSpeed).c_str());
 }
 
-void GameDrawer::drawCar(Arduboy& arduboy, GameState& gameState)
+//-----------------------------------------------------------------------
+void GameDrawer::drawMyCar(Arduboy& arduboy, GameState& gameState)
+{ 
+  drawCar(arduboy, gameState.m_currentLine, 15 * gameState.m_carSpeed / gameState.s_maxSpeed, gameState);
+}
+
+//-----------------------------------------------------------------------
+void GameDrawer::drawCar(Arduboy& arduboy, char line, int8_t position, GameState& gameState)
 {
-  const unsigned char CAR_WIDTH = 32;
-  const unsigned char CAR_HEIGHT = 8;
-  int8_t x;
-  int8_t y = 50;
-  switch( gameState.m_currentLine )
+  const uint8_t CAR_WIDTH = 32;
+  const uint8_t CAR_HEIGHT = 8;
+  float lambda = position / 127.0f;
+  Point8 linePoint;
+  switch( line )
   {
     case GameState::LEFT:
-    x = 4;
+    linePoint = gameState.m_leftLine;
     break;
     case GameState::MIDDLE:
-    x = 48;
+    linePoint = gameState.m_middleLine;
     break;
     case GameState::RIGHT:
-    x = 92;
+    linePoint = gameState.m_rightLine;
     break;
   }
-  
-  arduboy.drawRect(x, y, CAR_WIDTH, CAR_HEIGHT, WHITE);
+
+  Point8 carPos = linePoint + (gameState.m_vanishingPoint - linePoint) * lambda;
+
+  uint8_t scaledWidth = (1.0f - lambda) * CAR_WIDTH;
+  uint8_t scaleHeight = (1.0f - lambda) * CAR_HEIGHT;
+  arduboy.drawRect(carPos.x - scaledWidth/2, carPos.y - scaleHeight/2, scaledWidth, scaleHeight, WHITE);
 }
 
+//-----------------------------------------------------------------------
 void GameDrawer::drawTrack(Arduboy& arduboy, GameState& gameState)
 {
-  const int8_t x0 = SCREEN_WIDTH/2;
-  const int8_t y0 = -50;
+  arduboy.drawLine(gameState.m_vanishingPoint.x, gameState.m_vanishingPoint.y, 
+                   gameState.m_leftLine.x - gameState.s_trackWidth/2, gameState.m_leftLine.y, 
+                   WHITE);
 
-  const int8_t trackWidth = 50;
-  
-  arduboy.drawLine(x0, y0, SCREEN_WIDTH/2 - trackWidth/2 - trackWidth, SCREEN_BOTTOM, WHITE);
+  arduboy.drawLine(gameState.m_vanishingPoint.x, gameState.m_vanishingPoint.y, 
+                   gameState.m_middleLine.x - gameState.s_trackWidth/2, gameState.m_middleLine.y,  
+                   WHITE);
+   
+  arduboy.drawLine(gameState.m_vanishingPoint.x, gameState.m_vanishingPoint.y, 
+                   gameState.m_middleLine.x + gameState.s_trackWidth/2, gameState.m_middleLine.y,  
+                   WHITE);
 
-  arduboy.drawLine(x0, y0, SCREEN_WIDTH/2 - trackWidth/2, SCREEN_BOTTOM, WHITE);
-
-  arduboy.drawLine(x0, y0, SCREEN_WIDTH/2 + trackWidth/2, SCREEN_BOTTOM, WHITE);
-
-  arduboy.drawLine(x0, y0, SCREEN_WIDTH/2 + trackWidth/2 + trackWidth, SCREEN_BOTTOM, WHITE);
+  arduboy.drawLine(gameState.m_vanishingPoint.x, gameState.m_vanishingPoint.y, 
+                   gameState.m_rightLine.x + gameState.s_trackWidth/2, gameState.m_rightLine.y,  
+                   WHITE);
 }
 
+//-----------------------------------------------------------------------
 void GameDrawer::drawOpponent(Arduboy& arduboy, GameState& gameState)
 {
   for ( int i = 0; i < sizeof(gameState.opponents) / sizeof(void*); i++ )
   {
     if ( gameState.opponents[i] == NULL )
       continue;
-    
-    const unsigned char CAR_WIDTH = 32;
-    const unsigned char CAR_HEIGHT = 8;
-    int8_t x;
-    int8_t y = gameState.opponents[i]->position;
-    switch( gameState.opponents[i]->line )
-    {
-      case GameState::LEFT:
-      x = 4;
-      break;
-      case GameState::MIDDLE:
-      x = 48;
-      break;
-      case GameState::RIGHT:
-      x = 92;
-      break;
-    }
-   
-    arduboy.drawRect(x, y, CAR_WIDTH, CAR_HEIGHT, WHITE);
+
+    drawCar(arduboy, gameState.opponents[i]->line, gameState.opponents[i]->position, gameState);
   }
 }
