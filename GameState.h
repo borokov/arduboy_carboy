@@ -5,11 +5,13 @@
 
 struct Point8
 { 
+  Point8(int8_t x_, int8_t y_) : x(x_), y(y_) {}
+  Point8() : x(0), y(0) {}
   int8_t x;
   int8_t y;
-  Point8 operator+(Point8 v) { return {x + v.x, y + v.y}; }
-  Point8 operator-(Point8 v) { return {x - v.x, y - v.y}; }
-  Point8 operator*(float l) { return {l * x, l * y}; }
+  Point8 operator+(Point8 v) { return Point8(x + v.x, y + v.y); }
+  Point8 operator-(Point8 v) { return Point8(x - v.x, y - v.y); }
+  Point8 operator*(float l) { return Point8(l * x, l * y); }
 };
 
 
@@ -18,9 +20,11 @@ class GameState
 {
 public:
   GameState();
-  updateState(Arduboy& arduboy);
+  void updateState(Arduboy& arduboy);
   
   uint8_t m_carSpeed;
+  uint8_t m_carLife;
+  int8_t m_carPosition;
   static const uint8_t s_maxSpeed = 20;
   enum Line
   {
@@ -33,7 +37,7 @@ public:
   bool m_leftWasPressed;
   bool m_rightWasPressed;
 
-  uint8_t m_currentFrame;
+  uint32_t m_currentFrame;
 
   struct Opponent
   {
@@ -45,7 +49,7 @@ public:
     static const uint8_t speed = 15;
   };
 
-  Opponent* opponents[4];
+  Opponent* opponents[16];
 
   Point8 m_vanishingPoint;
   Point8 m_deltaVanishingPoint;

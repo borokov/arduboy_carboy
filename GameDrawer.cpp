@@ -19,6 +19,8 @@ void GameDrawer::draw(Arduboy& arduboy, GameState& gameState)
 
   drawSpeed(arduboy, gameState);
 
+  drawLife(arduboy, gameState);
+
   drawMyCar(arduboy, gameState);
 
   drawTrack(arduboy, gameState);
@@ -39,9 +41,18 @@ void GameDrawer::drawSpeed(Arduboy& arduboy, GameState& gameState)
 }
 
 //-----------------------------------------------------------------------
+void GameDrawer::drawLife(Arduboy& arduboy, GameState& gameState)
+{
+  arduboy.setCursor(20, 2);
+
+  // then we print to screen what is in the Quotation marks ""
+  arduboy.print(String(gameState.m_carLife).c_str());
+}
+
+//-----------------------------------------------------------------------
 void GameDrawer::drawMyCar(Arduboy& arduboy, GameState& gameState)
 { 
-  drawCar(arduboy, gameState.m_currentLine, 15 * gameState.m_carSpeed / gameState.s_maxSpeed, gameState);
+  drawCar(arduboy, gameState.m_currentLine, gameState.m_carPosition, gameState);
 }
 
 //-----------------------------------------------------------------------
@@ -94,7 +105,7 @@ void GameDrawer::drawTrack(Arduboy& arduboy, GameState& gameState)
 //-----------------------------------------------------------------------
 void GameDrawer::drawOpponent(Arduboy& arduboy, GameState& gameState)
 {
-  for ( int i = 0; i < sizeof(gameState.opponents) / sizeof(void*); i++ )
+  for ( uint8_t i = 0; i < sizeof(gameState.opponents) / sizeof(void*); i++ )
   {
     if ( gameState.opponents[i] == NULL )
       continue;
