@@ -2,11 +2,9 @@
 
 GameState::GameState()
 {
-  m_carSpeed = 0;
-  m_currentLine = MIDDLE;
   m_currentFrame = 0;
   memset(opponents, 0, sizeof(opponents) / sizeof(void*));
-  m_carLife = 3;
+  m_playerLife = 3;
 
   m_vanishingPoint = Point8(64, -50);
   m_middleLine = Point8(64 , 64);
@@ -21,19 +19,19 @@ GameState::updateState(Arduboy& arduboy)
 {
   //----------------------------------------------------------
   // Update car pos
-  if ( arduboy.pressed(B_BUTTON) && m_carSpeed < s_maxSpeed )
-    m_carSpeed++;
+  if ( arduboy.pressed(B_BUTTON) && m_player.speed < s_maxSpeed )
+    m_player.speed++;
 
-  if ( arduboy.notPressed(B_BUTTON) && m_carSpeed > 0 )
-    m_carSpeed--;
+  if ( arduboy.notPressed(B_BUTTON) && m_player.speed > 0 )
+    m_player.speed--;
   
-   if ( arduboy.pressed(LEFT_BUTTON) && !m_leftWasPressed && m_currentLine != LEFT )
-    m_currentLine--;
+   if ( arduboy.pressed(LEFT_BUTTON) && !m_leftWasPressed && m_player.line != LEFT )
+    m_player.line--;
 
-   if ( arduboy.pressed(RIGHT_BUTTON) && !m_rightWasPressed && m_currentLine != RIGHT )
-    m_currentLine++;
+   if ( arduboy.pressed(RIGHT_BUTTON) && !m_rightWasPressed && m_player.line != RIGHT )
+    m_player.line++;
 
-  m_carPosition = 15 * m_carSpeed / s_maxSpeed;
+  m_player.position = 15 * m_player.speed / s_maxSpeed;
 
   m_leftWasPressed = arduboy.pressed(LEFT_BUTTON);
   m_rightWasPressed = arduboy.pressed(RIGHT_BUTTON);
@@ -73,7 +71,7 @@ GameState::updateState(Arduboy& arduboy)
     if ( opponents[i] == NULL )
       continue;
       
-    opponents[i]->position += (opponents[i]->speed - m_carSpeed);
+    opponents[i]->position += (opponents[i]->speed - m_player.speed);
     // If oponent get behind us (or very far awayt in front=> int overflow),
     // delete it.
     if ( opponents[i]->position < -5 )
@@ -90,13 +88,13 @@ GameState::updateState(Arduboy& arduboy)
     if ( opponents[i] == NULL )
       continue;
       
-    opponents[i]->position += (opponents[i]->speed - m_carSpeed);
+    opponents[i]->position += (opponents[i]->speed - m_player.speed);
     // If oponent get behind us (or very far awayt in front=> int overflow),
     // delete it.
-    if ( m_currentLine == opponents[i]->line && m_carPosition <= opponents[i]->position && opponents[i]->position <= m_carPosition + 5 )
+    if ( m_player.line == opponents[i]->line && m_player.position <= opponents[i]->position && opponents[i]->position <= m_player.position + 5 )
     {
-      m_carSpeed = 0;
-      m_carLife--;
+      m_player.speed = 0;
+      m_playerLife--;
       for ( uint8_t i = 0; i < sizeof(opponents) / sizeof(void*); i++ )
       {
         delete opponents[i];
@@ -116,7 +114,10 @@ GameState::updateState(Arduboy& arduboy)
       {
         if ( opponents[j] == NULL )
         {
-          opponents[j] = new Opponent();
+          opponents[j] = new Car();
+          opponents[j]->line = random(0, 3);
+          opponents[j]->position = 127;
+          opponents[j]->speed = s_oponentSpeed;
           break;
         }
       }
@@ -126,8 +127,3 @@ GameState::updateState(Arduboy& arduboy)
   m_currentFrame++;
 }
 
-GameState::Opponent::Opponent()
-{
-  line = random(0, 3);
-  position = 127;
-}

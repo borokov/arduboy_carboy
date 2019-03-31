@@ -22,34 +22,11 @@ public:
   GameState();
   void updateState(Arduboy& arduboy);
   
-  uint8_t m_carSpeed;
-  uint8_t m_carLife;
-  int8_t m_carPosition;
-  static const uint8_t s_maxSpeed = 20;
-  enum Line
-  {
-    LEFT,
-    MIDDLE,
-    RIGHT
-  };
-  char m_currentLine;
 
   bool m_leftWasPressed;
   bool m_rightWasPressed;
 
   uint32_t m_currentFrame;
-
-  struct Opponent
-  {
-    Opponent();
-
-    // position relative to current car. 127 is far away in front, 0 is in our car, -127 is behind.
-    int8_t position;
-    char line;
-    static const uint8_t speed = 15;
-  };
-
-  Opponent* opponents[16];
 
   Point8 m_vanishingPoint;
   Point8 m_deltaVanishingPoint;
@@ -57,8 +34,29 @@ public:
   Point8 m_leftLine;
   Point8 m_middleLine;
   Point8 m_rightLine;
-
   static const int8_t s_trackWidth = 50;
+
+  static const uint8_t s_maxSpeed = 18;
+  enum Line
+  {
+    LEFT,
+    MIDDLE,
+    RIGHT
+  };
+
+  struct Car
+  {
+    Car() : position(0), line(MIDDLE), speed(0) {}
+
+    // position relative to current car. 127 is far away in front, 0 is in our car, -127 is behind.
+    int8_t position;
+    char line;
+    uint8_t speed;
+  };
+  Car m_player;
+  uint8_t m_playerLife;
+  Car* opponents[16];
+  static const uint8_t s_oponentSpeed = 15;
 };
 
 #endif

@@ -37,7 +37,7 @@ void GameDrawer::drawSpeed(Arduboy& arduboy, GameState& gameState)
   arduboy.setCursor(2, 2);
 
   // then we print to screen what is in the Quotation marks ""
-  arduboy.print(String(gameState.m_carSpeed).c_str());
+  arduboy.print(String(gameState.m_player.speed).c_str());
 }
 
 //-----------------------------------------------------------------------
@@ -46,13 +46,13 @@ void GameDrawer::drawLife(Arduboy& arduboy, GameState& gameState)
   arduboy.setCursor(20, 2);
 
   // then we print to screen what is in the Quotation marks ""
-  arduboy.print(String(gameState.m_carLife).c_str());
+  arduboy.print(String(gameState.m_playerLife).c_str());
 }
 
 //-----------------------------------------------------------------------
 void GameDrawer::drawMyCar(Arduboy& arduboy, GameState& gameState)
 { 
-  drawCar(arduboy, gameState.m_currentLine, gameState.m_carPosition, gameState);
+  drawCar(arduboy, gameState.m_player.line, gameState.m_player.position, gameState);
 }
 
 //-----------------------------------------------------------------------
