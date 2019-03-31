@@ -62,7 +62,7 @@ GameState::updateState(Arduboy& arduboy)
     m_deltaVanishingPoint.y = random(-2, 0);
   }
   
-  m_vanishingPoint = m_vanishingPoint + m_deltaVanishingPoint;
+  m_vanishingPoint = m_vanishingPoint + m_deltaVanishingPoint * (float)((2 * m_player.speed / (float)s_maxSpeed));
 
   //----------------------------------------------------------
   // Update oponents
